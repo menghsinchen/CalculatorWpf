@@ -20,8 +20,9 @@ namespace CalculatorWpf
     /// </summary>
     public partial class MainWindow : Window
     {
-        private double lastNumber, resultNumber;
+        private double lastNumber;
         private Operator selectedOperator;
+        private bool EqualClicked;
 
         public MainWindow()
         {
@@ -77,47 +78,53 @@ namespace CalculatorWpf
             {
                 selectedOperator = Operator.Division;
             }
+            EqualClicked = false;
         }
 
         private void btnAc_Click(object sender, RoutedEventArgs e)
         {
             lblResult.Content = "0";
+            EqualClicked = false;
         }
 
         private void BtnEqual_Click(object sender, RoutedEventArgs e)
         {
-            if (double.TryParse(lblResult.Content.ToString(), out double newNumber))
+            if (!EqualClicked)
             {
-                switch (selectedOperator)
-                {
-                    case Operator.Addition:
-                        resultNumber = lastNumber + newNumber;
-                        break;
-                    case Operator.Sustraction:
-                        resultNumber = lastNumber - newNumber;
-                        break;
-                    case Operator.Multiplication:
-                        resultNumber = lastNumber * newNumber;
-                        break;
-                    case Operator.Division:
-                        resultNumber = lastNumber / newNumber;
-                        break;
-                    default:
-                        break;
-                }
-                lblResult.Content = resultNumber;
-                selectedOperator = Operator.Equalization;
+                lblResult.Content = double.TryParse(lblResult.Content.ToString(), out double labelContent) ? Calculate(lastNumber, labelContent, selectedOperator) : lblResult.Content;
             }
+            EqualClicked = true;
         }
 
         private void BtnNegative_Click(object sender, RoutedEventArgs e)
         {
-            lblResult.Content = double.TryParse(lblResult.Content.ToString(), out lastNumber) ? (lastNumber * -1) : lblResult.Content;
+            lblResult.Content = double.TryParse(lblResult.Content.ToString(), out double labelContent) ? (labelContent * -1) : lblResult.Content;
         }
 
         private void BtnPercentage_Click(object sender, RoutedEventArgs e)
         {
-            lblResult.Content = double.TryParse(lblResult.Content.ToString(), out lastNumber) ? (lastNumber / 100) : lblResult.Content;
+            lblResult.Content = double.TryParse(lblResult.Content.ToString(), out double labelContent) ? labelContent / 100 : lblResult.Content;
+        }
+
+        private double Calculate(double lastNumber, double newNumber, Operator selectedOperator)
+        {
+            double resultNumber = 0;
+            switch (selectedOperator)
+            {
+                case Operator.Addition:
+                    resultNumber = Calculation.Addition(lastNumber, newNumber);
+                    break;
+                case Operator.Sustraction:
+                    resultNumber = Calculation.Substraction(lastNumber, newNumber);
+                    break;
+                case Operator.Multiplication:
+                    resultNumber = Calculation.Multiply(lastNumber, newNumber);
+                    break;
+                case Operator.Division:
+                    resultNumber = Calculation.Division(lastNumber, newNumber);
+                    break;
+            }
+            return resultNumber;
         }
     }
 
@@ -126,7 +133,35 @@ namespace CalculatorWpf
         Addition,
         Sustraction,
         Multiplication,
-        Division,
-        Equalization
+        Division
+    }
+
+    public class Calculation
+    {
+        public static double Addition(double n1, double n2)
+        {
+            return n1 + n2;
+        }
+
+        public static double Substraction(double n1, double n2)
+        {
+            return n1 - n2;
+        }
+
+        public static double Multiply(double n1, double n2)
+        {
+            return n1 * n2;
+        }
+
+        public static double Division(double n1, double n2)
+        {
+            if (n2 == 0)
+            {
+                MessageBox.Show("Division by 0 is not supported", "Wrong operation", MessageBoxButton.OK, MessageBoxImage.Error);
+                return n1;
+            }
+
+            return n1 / n2;
+        }
     }
 }
