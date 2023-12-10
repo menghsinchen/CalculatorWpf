@@ -1,0 +1,10 @@
+# ignore extensions
+*.exe
+*.pdb
+*.cache
+*.vsidx
+
+# ignore directories
+.vs/
+bin/
+obj/
