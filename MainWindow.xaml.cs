@@ -22,7 +22,7 @@ namespace CalculatorWpf
     {
         private double lastNumber;
         private Operator selectedOperator;
-        private bool EqualClicked;
+        private bool equalClicked;
 
         public MainWindow()
         {
@@ -78,22 +78,23 @@ namespace CalculatorWpf
             {
                 selectedOperator = Operator.Division;
             }
-            EqualClicked = false;
+            equalClicked = false;
         }
 
         private void btnAc_Click(object sender, RoutedEventArgs e)
         {
             lblResult.Content = "0";
-            EqualClicked = false;
+            lastNumber = 0;
+            equalClicked = false;
         }
 
         private void BtnEqual_Click(object sender, RoutedEventArgs e)
         {
-            if (!EqualClicked)
+            if (!equalClicked && double.TryParse(lblResult.Content.ToString(), out double labelContent))
             {
-                lblResult.Content = double.TryParse(lblResult.Content.ToString(), out double labelContent) ? Calculate(lastNumber, labelContent, selectedOperator) : lblResult.Content;
+                lblResult.Content = lastNumber = Calculate(lastNumber, labelContent, selectedOperator);
             }
-            EqualClicked = true;
+            equalClicked = true;
         }
 
         private void BtnNegative_Click(object sender, RoutedEventArgs e)
@@ -103,7 +104,10 @@ namespace CalculatorWpf
 
         private void BtnPercentage_Click(object sender, RoutedEventArgs e)
         {
-            lblResult.Content = double.TryParse(lblResult.Content.ToString(), out double labelContent) ? labelContent / 100 : lblResult.Content;
+            if (!equalClicked && double.TryParse(lblResult.Content.ToString(), out double labelContent))
+            {
+                lblResult.Content = lastNumber == 0 ? labelContent / 100 : lastNumber * (labelContent / 100);
+            }
         }
 
         private double Calculate(double lastNumber, double newNumber, Operator selectedOperator)
